@@ -111,7 +111,19 @@ class pyenv(instance):
 
     def get_packages(self):
         packages = self.options['packages'].split()
-        return [ x.split(':') for x in packages ]
+        return [ x.split('@') for x in packages ]
+
+
+    def _set_package_version(self, version):
+        """
+        Set version (branch or tag) associated to a given package
+        A package should be written ikaaro@branch:0.75 or ikaaro@tag:v0.1
+        """
+        config.options.use_branch = False
+        if version.startswith('branch'):
+            config.options.use_branch = True
+        # Get the version
+        config.options.version = version.split(':')[1]
 
 
     build_title = u'Build the source code this Python environment requires'
@@ -125,8 +137,8 @@ class pyenv(instance):
         print '**********************************************************'
         print ' BUILD'
         print '**********************************************************'
-        for name, branch in self.get_packages():
-            config.options.branch = branch
+        for name, version in self.get_packages():
+            self._set_package_version(version)
             source = self.get_source(name)
             source.action_dist()
 
@@ -139,7 +151,7 @@ class pyenv(instance):
         print '**********************************************************'
         print ' UPLOAD'
         print '**********************************************************'
-        for name, branch in self.get_packages():
+        for name, version in self.get_packages():
             source = self.get_source(name)
             # Upload
             pkgname = source.get_pkgname()
@@ -160,7 +172,7 @@ class pyenv(instance):
         prefix = self.options.get('prefix')
         if prefix:
             command += ' --prefix=%s' % prefix
-        for name, branch in self.get_packages():
+        for name, version in self.get_packages():
             source = self.get_source(name)
             pkgname = source.get_pkgname()
             # Untar
@@ -178,7 +190,7 @@ class pyenv(instance):
         print '**********************************************************'
         bin_python = expanduser(self.bin_python)
         command = [bin_python, 'setup.py', 'install', '--force']
-        for name, branch in self.get_packages():
+        for name, version in self.get_packages():
             source = self.get_source(name)
             cwd = source.get_path()
             local.run(command, cwd=cwd)
