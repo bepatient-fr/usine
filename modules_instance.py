@@ -59,8 +59,37 @@ class instance(module):
 
 
     @lazy
+    def sources_location(self):
+        try:
+            return self.options['sources_location']
+        except KeyError:
+            raise ValueError('/!\ WARNING. Add sources_location in the instance info')
+
+
+    @lazy
+    def sources_version(self):
+        """Return (use_branch, name) to use in source location
+        """
+        try:
+            version = self.options['version']
+        except KeyError:
+            raise ValueError('/!\ WARNING. Not any version given (add version in the instance info')
+        use_branch = False
+        if version.startswith('branch'):
+            use_branch = True
+        # Get the version
+        version = version.split(':')[1]
+        return use_branch, version
+
+
+    @lazy
     def bin_python(self):
         return '%s/bin/python' % self.location[2]
+
+
+    @lazy
+    def bin_pip(self):
+        return '%s/bin/pip' % self.location[2]
 
 
     def get_host(self):
@@ -96,7 +125,7 @@ class pyenv(instance):
         if self.location[1] == 'localhost':
             return ['build', 'install', 'restart', 'deploy', 'deploy_reindex',
                     'reindex']
-        return ['build', 'upload', 'install', 'restart', 'deploy',
+        return ['build', 'upload', 'install', 'restart', 'deploy', 'deploy_v2',
                 'deploy_reindex', 'test', 'vhosts', 'reindex']
 
 
@@ -184,6 +213,25 @@ class pyenv(instance):
             host.run('rm -rf %s' % pkg_path, '/tmp')
 
 
+    install_sources_title = u'Install the remove source code into the Python environment'
+    def action_install_sources(self):
+        print '**********************************************************'
+        print ' INSTALL REMOTE SOURCES '
+        print '**********************************************************'
+        host = self.get_host()
+        # A there is a lot of sysout we redirect the result into specifics files
+        import time
+        now = time.time()
+        requirements_results = '/tmp/requirements-{}.log'.format(now)
+        install_results = '/tmp/install-python-{}.log'.format(now)
+        # Install requirements
+        requirements_command = '{0} install --upgrade -r requirements.txt > {1} 2>&1'.format(self.bin_pip, requirements_results)
+        host.run(requirements_command, self.sources_location)
+        # Install source code
+        install_command = '{0} setup.py install --force > {1} 2>&1'.format(self.bin_python, install_results)
+        host.run(install_command, self.sources_location)
+
+
     def action_install_local(self):
         print '**********************************************************'
         print ' INSTALL'
@@ -209,6 +257,35 @@ class pyenv(instance):
                 ikaaro.start()
 
 
+    pull_sources_title = u'Pull changes in the remote sources'
+    def action_pull_sources(self):
+        """Pull source code"""
+        print '**********************************************************'
+        print ' PULL SOURCE CODE '
+        print '**********************************************************'
+        host = self.get_host()
+        # Fetch the new code
+        fetch_command = 'git pull --rebase'
+        host.run(fetch_command, self.sources_location)
+        # Change to the branch
+        use_branch, version = self.sources_version
+        if use_branch:
+            try:
+                command = 'git checkout {}'.format(version)
+                host.run(command, self.sources_location)
+            except EnvironmentError:
+                command = 'git checkout -b {0} origin/{0}'.format(version)
+                host.run(command, self.sources_location)
+            else:
+                command = 'git reset --hard origin/{}'.format(version)
+                host.run(command, self.sources_location)
+        else:
+            host.run('git fetch --tags', self.sources_location)
+            command = 'git checkout {}'.format(version)
+            host.run(command, self.sources_location)
+        host.run('git clean -fxdq', self.sources_location)
+
+
     reindex_title = u'Reindex the ikaaro instances that use this environment'
     def action_reindex(self):
         """Reindex every ikaaro instance.
@@ -230,6 +307,18 @@ class pyenv(instance):
         instances.
         """
         actions = ['build', 'upload', 'install', 'restart']
+        for name in actions:
+            action = self.get_action(name)
+            if action:
+                action()
+
+
+    deploy_v2_title = u'Fetch and install the source code in the given venv'
+    def action_deploy_v2(self):
+        """
+        Fetch and install the source code in the given venv
+        """
+        actions = ['pull_sources', 'stop', 'install_sources', 'restart']
         for name in actions:
             action = self.get_action(name)
             if action:
