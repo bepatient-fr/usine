@@ -71,7 +71,7 @@ class instance(module):
         """Return (use_branch, name) to use in source location
         """
         try:
-            version = self.options['version']
+            version = self.options['sources_version']
         except KeyError:
             raise ValueError('/!\ WARNING. Not any version given (add version in the instance info')
         use_branch = False
@@ -80,6 +80,15 @@ class instance(module):
         # Get the version
         version = version.split(':')[1]
         return use_branch, version
+
+    @lazy
+    def log_location(self):
+        try:
+            log_location = self.options['log_location']
+        except KeyError:
+            print '/!\ Not any log_location defined, put log inside /var/log'
+            log_location = '/var/log'
+        return log_location
 
 
     @lazy
@@ -219,9 +228,12 @@ class pyenv(instance):
         print ' INSTALL REMOTE SOURCES '
         print '**********************************************************'
         host = self.get_host()
+        # Build location
+        log_location = self.log_location
+        server_name, pyenv_name = self.name.rsplit('/', 1)
         # A there is a lot of sysout we redirect the result into specifics files
-        requirements_log = '/var/log/ikaaro-install-requirements.log'
-        install_log = '/var/log/ikaaro-install-python.log'
+        requirements_log = '{0}/{1}-install-requirements.log'.format(log_location, pyenv_name)
+        install_log = '{0}/{1}-install-python.log'.format(log_location, pyenv_name)
         # Install requirements
         requirements_command = '{0} install --upgrade -r requirements.txt >> {1} 2>&1'.format(self.bin_pip, requirements_log)
         host.run(requirements_command, self.sources_location)
