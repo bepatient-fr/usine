@@ -132,9 +132,9 @@ class pyenv(instance):
 
     def get_actions(self):
         if self.location[1] == 'localhost':
-            return ['build', 'install', 'restart', 'deploy', 'deploy_reindex',
+            return ['build', 'install', 'restart', 'deploy', 'deploy_reindex', 'deploy_v2_reindex',
                     'reindex']
-        return ['build', 'upload', 'install', 'restart', 'deploy', 'deploy_v2',
+        return ['build', 'upload', 'install', 'restart', 'deploy', 'deploy_v2', 'deploy_v2_reindex',
                 'deploy_reindex', 'test', 'vhosts', 'reindex']
 
 
@@ -328,7 +328,22 @@ class pyenv(instance):
         """
         Fetch and install the source code in the given venv
         """
-        actions = ['pull_sources', 'stop', 'install_sources', 'restart']
+        actions = ['pull_sources', 'stop', 'install_sources', 'start']
+        for name in actions:
+            action = self.get_action(name)
+            if action:
+                action()
+
+
+    deploy_reindex_v2_title = (
+        u'Fetch, install, reindex and start the ikaaro instances')
+    def action_deploy_v2_reindex(self):
+        """
+        Build, upload, install the required Python packages
+        in the remote virtual environment and stop, reindex and start all the
+        ikaaro instances.
+        """
+        actions = ['pull_sources', 'stop', 'install_sources', 'reindex', 'start']
         for name in actions:
             action = self.get_action(name)
             if action:
