@@ -220,15 +220,13 @@ class pyenv(instance):
         print '**********************************************************'
         host = self.get_host()
         # A there is a lot of sysout we redirect the result into specifics files
-        import time
-        now = time.time()
-        requirements_results = '/tmp/requirements-{}.log'.format(now)
-        install_results = '/tmp/install-python-{}.log'.format(now)
+        requirements_log = '/var/log/ikaaro-install-requirements.log'
+        install_log = '/var/log/ikaaro-install-python.log'
         # Install requirements
-        requirements_command = '{0} install --upgrade -r requirements.txt > {1} 2>&1'.format(self.bin_pip, requirements_results)
+        requirements_command = '{0} install --upgrade -r requirements.txt >> {1} 2>&1'.format(self.bin_pip, requirements_log)
         host.run(requirements_command, self.sources_location)
         # Install source code
-        install_command = '{0} setup.py install --force > {1} 2>&1'.format(self.bin_python, install_results)
+        install_command = '{0} setup.py install --force >> {1} 2>&1'.format(self.bin_python, install_log)
         host.run(install_command, self.sources_location)
 
 

@@ -35,3 +35,16 @@ port = $IKAARO_INSTANCE_PORT
 1. Clone your source repo inside the `$SOURCES_LOCATION` directory
 2. Define your requirements inside your sources `requirements.txt` file
 3. Use commands from your local Venv where Usine is installed
+
+# Commands
+
+## Deploy
+
+`$ bin/usine.py pyenv $SERVER_NAME/$PYENV_NAME deploy_v2`
+Will connect to ssh to the remote host (if it is a remote host),
+fetch sources, install `requirements.txt` using `pip`, and install sources inside the venv,
+restart instances.
+
+Logs will be generated:
+ - `/var/log/ikaaro-install-requirements.log.log`
+ - `/var/log/ikaaro-install-python.log`
