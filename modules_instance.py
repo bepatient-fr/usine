@@ -74,12 +74,10 @@ class instance(module):
             version = self.options['sources_version']
         except KeyError:
             raise ValueError('/!\ WARNING. Not any version given (add version in the instance info')
-        use_branch = False
-        if version.startswith('branch'):
-            use_branch = True
-        # Get the version
-        version = version.split(':')[1]
-        return use_branch, version
+        tag_or_branch, version_name = version.split(':')  # A version is : tag:v2.10 or branch:master
+        use_branch = tag_or_branch == 'branch'
+        return use_branch, version_name
+
 
     @lazy
     def log_location(self):
