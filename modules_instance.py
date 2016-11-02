@@ -235,10 +235,10 @@ class pyenv(instance):
         requirements_log = '{0}/{1}-install-requirements.log'.format(log_location, pyenv_name)
         install_log = '{0}/{1}-install-python.log'.format(log_location, pyenv_name)
         # Install requirements
-        requirements_command = '{0} install --upgrade -r requirements.txt >> {1} 2>&1'.format(self.bin_pip, requirements_log)
+        requirements_command = '{0} install --upgrade -r requirements.txt > {1}'.format(self.bin_pip, requirements_log)
         host.run(requirements_command, self.sources_location)
         # Install source code
-        install_command = '{0} setup.py install --force >> {1} 2>&1'.format(self.bin_python, install_log)
+        install_command = '{0} setup.py install --force > {1}'.format(self.bin_python, install_log)
         host.run(install_command, self.sources_location)
 
 
@@ -335,7 +335,7 @@ class pyenv(instance):
                 action()
 
 
-    deploy_reindex_v2_title = (
+    deploy_v2_reindex_title = (
         u'Fetch, install, reindex and start the ikaaro instances')
     def action_deploy_v2_reindex(self):
         """
