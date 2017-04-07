@@ -228,27 +228,24 @@ class pyenv(instance):
     def action_restart(self):
         """Restarts every ikaaro instance.
         """
-        print '**********************************************************'
-        print ' RESTART'
-        print '**********************************************************'
+        print '~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~'
+        print ' RESTART every instances on virtualenv (%s)' % self.name
+        print '~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~'
         for ikaaro in config.get_sections_by_type('ikaaro'):
             if ikaaro.options['pyenv'] == self.name:
-                ikaaro.stop()
-                ikaaro.start()
+                ikaaro.action_restart()
 
 
     reindex_title = u'Reindex the ikaaro instances that use this environment'
     def action_reindex(self):
         """Reindex every ikaaro instance.
         """
-        print '**********************************************************'
-        print ' REINDEX'
-        print '**********************************************************'
+        print '~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~'
+        print ' REINDEX every instances on virtualenv (%s)' % self.name
+        print '~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~'
         for ikaaro in config.get_sections_by_type('ikaaro'):
             if ikaaro.options['pyenv'] == self.name:
-                ikaaro.stop()
-                ikaaro.update_catalog()
-                ikaaro.start()
+                ikaaro.action_reindex()
 
 
     deploy_title = u'All of the above'
@@ -257,22 +254,10 @@ class pyenv(instance):
         packages in the remote virtual environment, and restart all the ikaaro
         instances.
         """
-        actions = ['build', 'upload', 'install', 'restart']
-        for name in actions:
-            action = self.get_action(name)
-            if action:
-                action()
-
-
-    deploy_reindex_title = (
-        u'Build, upload, install, reindex and start the ikaaro instances')
-    def action_deploy_reindex(self):
-        """
-        Build, upload, install the required Python packages
-        in the remote virtual environment and stop, reindex and start all the
-        ikaaro instances.
-        """
-        actions = ['build', 'upload', 'install', 'stop', 'reindex', 'start']
+        print '~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~'
+        print ' Deploy on virtualenv (%s)' % self.name
+        print '~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~'
+        actions = ['build', 'upload', 'stop', 'install']
         for name in actions:
             action = self.get_action(name)
             if action:
@@ -285,9 +270,9 @@ class pyenv(instance):
         """
         Launch update methods on every ikaaro instance.
         """
-        print '**********************************************************'
-        print ' UPDATE'
-        print '**********************************************************'
+        print '~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~'
+        print ' UPDATE every instances for virtualenv (%s)' % self.name
+        print '~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~'
         for ikaaro in config.get_sections_by_type('ikaaro'):
             if ikaaro.options['pyenv'] == self.name:
                 try:
@@ -302,9 +287,9 @@ class pyenv(instance):
         """
         Start all the ikaaro instances.
         """
-        print '**********************************************************'
-        print ' START'
-        print '**********************************************************'
+        print '~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~'
+        print ' START every instances for virtualenv (%s)' % self.name
+        print '~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~'
         for ikaaro in config.get_sections_by_type('ikaaro'):
             if ikaaro.options['pyenv'] == self.name:
                 ikaaro.start()
@@ -316,9 +301,9 @@ class pyenv(instance):
         """
         Stop all the ikaaro instances.
         """
-        print '**********************************************************'
-        print ' STOP'
-        print '**********************************************************'
+        print '~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~'
+        print ' STOP every instances for virtualenv (%s)' % self.name
+        print '~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~'
         for ikaaro in config.get_sections_by_type('ikaaro'):
             if ikaaro.options['pyenv'] == self.name:
                 ikaaro.stop()
@@ -328,9 +313,9 @@ class pyenv(instance):
         u'Test if ikaaro instances of this Python environment are alive')
     def action_test(self):
         """ Test if ikaaro instances of this Python environment are alive"""
-        print '**********************************************************'
-        print ' TEST'
-        print '**********************************************************'
+        print '~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~'
+        print ' TEST every instances for virtualenv (%s)' % self.name
+        print '~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~'
         for ikaaro in config.get_sections_by_type('ikaaro'):
             if ikaaro.options['pyenv'] == self.name:
                 uri = ikaaro.options['uri']
@@ -346,9 +331,9 @@ class pyenv(instance):
         u'List vhosts of all ikaaro instances of this Python environment')
     def action_vhosts(self):
         """List vhosts of all ikaaro instances of this Python environment"""
-        print '**********************************************************'
-        print ' LIST VHOSTS'
-        print '**********************************************************'
+        print '~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~'
+        print ' LIST VHOSTS for for virtualenv (%s)' % self.name
+        print '~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~'
         for ikaaro in config.get_sections_by_type('ikaaro'):
             if ikaaro.options['pyenv'] == self.name:
                 ikaaro.vhosts()
@@ -424,7 +409,7 @@ class ikaaro(instance):
     start_title = u'Start an ikaaro instance'
     def action_start(self):
         print '**********************************************************'
-        print ' START'
+        print ' START instance %s' % self.name
         print '**********************************************************'
         self.start()
 
@@ -432,7 +417,7 @@ class ikaaro(instance):
     stop_title = u'Stop an ikaaro instance'
     def action_stop(self):
         print '**********************************************************'
-        print ' STOP'
+        print ' STOP instance %s' % self.name
         print '**********************************************************'
         self.stop()
 
@@ -440,7 +425,7 @@ class ikaaro(instance):
     restart_title = u'(Re)Start an ikaaro instance'
     def action_restart(self):
         print '**********************************************************'
-        print ' RESTART'
+        print ' RESTART instance %s' % self.name
         print '**********************************************************'
         self.stop()
         self.start()
@@ -449,27 +434,27 @@ class ikaaro(instance):
     reindex_title = u'Update catalog of an ikaaro instance'
     def action_reindex(self):
         print '**********************************************************'
-        print ' REINDEX'
+        print ' REINDEX instance %s' % self.name
+        print " WARNING - IN CASE THE INSTANCE WAS STARTED, THIS SCRIPT WON'T RESTART IT"
         print '**********************************************************'
-        self.stop()
+        self.stop()  # Make sure the instance is stopped before reindex
         self.update_catalog()
-        self.start()
 
 
     update_title = u'Launch update methods of an ikaaro instance'
     def action_update(self):
         print '**********************************************************'
-        print ' UPDATE'
+        print ' UPDATE instance %s' % self.name
+        print " WARNING - IN CASE THE INSTANCE WAS STARTED, THIS SCRIPT WON'T RESTART IT"
         print '**********************************************************'
         self.stop()
         self.update()
-        self.start()
 
 
     vhosts_title = u'List vhosts of ikaaro instance'
     def action_vhosts(self):
         print '**********************************************************'
-        print ' List Vhosts'
+        print ' List Vhosts for instance  %s' % self.name
         print '**********************************************************'
         self.vhosts()
 
