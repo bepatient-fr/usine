@@ -99,8 +99,9 @@ class pyenv(instance):
 
     def get_actions(self):
         global_actions = ['build', 'restart',
-                          'deploy', 'update', 'deploy_reindex',
-                          'update', 'reindex', 'start', 'stop',
+                          'deploy', 'update',
+                          'reindex', 'start',
+                          'stop',
                           ]
         if self.location[1] == 'localhost':
             # Add specific install local
@@ -256,6 +257,7 @@ class pyenv(instance):
         """
         print '~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~'
         print ' Deploy on virtualenv (%s)' % self.name
+        print ' WARNING - This will not restart instances ! '
         print '~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~'
         actions = ['build', 'upload', 'stop', 'install']
         for name in actions:
